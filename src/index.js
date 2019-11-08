@@ -196,7 +196,10 @@ const server = new ApolloServer({
     schemaDirectives: {
         auth: AuthDirective
     },
-    context({ req }) {
+    context({ req, connection }) {
+        if (connection) {
+            return connection.context
+        }
         return {
             headers: req.headers
         }
