@@ -61,6 +61,7 @@ const typeDefs = gql`
 
     type Subscription {
         onCreatedUser: User
+        onCreatedTime: Registered_Time
     }
 
     input CreateUserInput {
@@ -135,7 +136,7 @@ const resolver = {
                 const time = await Registered_Time.create(body.data)
                 await time.setUser(createdUser.get('id'))
                 const reloadedTime = time.reload({ include: [User] })
-                pubSub.publish('CreatedTime', {
+                pubSub.publish('createdTime', {
                     onCreatedTime: reloadedTime
                 })
                 return reloadedTime
@@ -186,6 +187,9 @@ const resolver = {
     Subscription: {
         onCreatedUser:{
             subscribe: () => pubSub.asyncIterator('createdUser')
+        },
+        onCreatedTime:{
+            subscribe: () => pubSub.asyncIterator('createdTime')
         }
     }
 }
