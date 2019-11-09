@@ -30,13 +30,14 @@ const typeDefs = gql`
 
     type Registered_Time {
         id: ID!
+        date_registered: String!
         time_registered: String!
         user: User!
     }
 
     type Query {
         allUsers: [User]
-        allRegisteredTimes: [Registered_Time]
+        allRegisteredTimes(userId: String): [Registered_Time]
     }
 
     type Mutation {
@@ -79,11 +80,17 @@ const typeDefs = gql`
     }
 
     input CreateTimeInput {
+        date_registered: String!
         time_registered: String!
-        user: CreateUserInput
+        user: CreateTimeUserInput
     }
+
     input UpdateTimeInput {
         time_registered: String!
+    }
+
+    input CreateTimeUserInput{
+        id: ID
     }
 `
 
@@ -92,8 +99,14 @@ const resolver = {
         allUsers() {
             return User.findAll({ include: [Registered_Time] })
         },
-        allRegisteredTimes(){
-            return Registered_Time.findAll({ include: [User] })
+        allRegisteredTimes(obj, args, context, info){
+            
+            let times = Registered_Time.findAll({ include: [User] })
+            
+            if(args.userId)
+                return times.filter(x=> x.user.id === +args.userId)
+            else
+                return times;
         }
     },
     Mutation: {
